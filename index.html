@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Payly — Salary Calculator</title>
+    <meta
+      name="description"
+      content="Payly estimates gross pay, tax, and take-home pay. Your salary data stays on your device."
+    />
+    <meta name="theme-color" content="#e7eee9" id="theme-color" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230c6b4d'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Georgia,serif' font-size='36' fill='white'%3EP%3C/text%3E%3C/svg%3E"
+    />
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("payly-theme");
+          if (theme !== "light" && theme !== "dark") {
+            theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          document.documentElement.setAttribute("data-theme", theme);
+          var lang = localStorage.getItem("payly-lang");
+          if (lang === "en" || lang === "ru" || lang === "fr" || lang === "ar") {
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+          }
+        } catch (err) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="brand">
+          <span class="mark" aria-hidden="true">P</span>
+          <div class="brand-text">
+            <h1 class="brand-name">Payly</h1>
+            <p class="brand-sub" data-i18n="subtitle"></p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div
+            class="switch"
+            id="lang-switch"
+            role="radiogroup"
+            data-i18n-attr="aria-label"
+            data-i18n="language"
+          >
+            <button type="button" role="radio" data-lang="en" aria-checked="false">EN</button>
+            <button type="button" role="radio" data-lang="ru" aria-checked="false">RU</button>
+            <button type="button" role="radio" data-lang="fr" aria-checked="false">FR</button>
+            <button type="button" role="radio" data-lang="ar" aria-checked="false" lang="ar">ع</button>
+          </div>
+          <button type="button" class="theme-btn" id="theme-toggle">
+            <span class="theme-icon" id="theme-icon" aria-hidden="true"></span>
+            <span class="theme-label" id="theme-label"></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="workspace">
+      <div class="workspace-form">
+
+      <section class="panel" aria-labelledby="calc-heading">
+        <h2 class="sr-only" id="calc-heading" data-i18n="calculate"></h2>
+
+        <div
+          class="switch switch-currency"
+          id="currency-switch"
+          role="radiogroup"
+          data-i18n-attr="aria-label"
+          data-i18n="currency"
+        >
+          <button type="button" role="radio" data-currency="USD" aria-checked="false">$ USD</button>
+          <button type="button" role="radio" data-currency="EUR" aria-checked="false">€ EUR</button>
+          <button type="button" role="radio" data-currency="GBP" aria-checked="false">£ GBP</button>
+          <button type="button" role="radio" data-currency="RUB" aria-checked="false">₽ RUB</button>
+        </div>
+        <p class="hint" data-i18n="currencyHint"></p>
+
+        <div class="modes" id="mode-switch" role="tablist" data-i18n-attr="aria-label" data-i18n="mode">
+          <button
+            type="button"
+            role="tab"
+            id="tab-hourly"
+            data-mode="hourly"
+            aria-selected="true"
+            aria-controls="panel-hourly"
+            data-i18n="hourly"
+          ></button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-monthly"
+            data-mode="monthly"
+            aria-selected="false"
+            aria-controls="panel-monthly"
+            tabindex="-1"
+            data-i18n="monthly"
+          ></button>
+        </div>
+
+        <form id="calc-form" novalidate autocomplete="off">
+          <div role="tabpanel" id="panel-hourly" aria-labelledby="tab-hourly">
+            <div class="field">
+              <label for="hourly-rate" data-i18n="hourlyRate"></label>
+              <div class="control" data-control="hourly-rate">
+                <input
+                  id="hourly-rate"
+                  name="hourly-rate"
+                  type="text"
+                  inputmode="decimal"
+                  enterkeyhint="done"
+                  autocomplete="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                  maxlength="18"
+                />
+                <span class="suffix currency-suffix" aria-hidden="true">$</span>
+              </div>
+              <p class="field-error" id="err-hourly-rate" data-for="hourly-rate"></p>
+            </div>
+            <div class="field">
+              <label for="hours-week" data-i18n="hoursPerWeek"></label>
+              <div class="control" data-control="hours-week">
+                <input
+                  id="hours-week"
+                  name="hours-week"
+                  type="text"
+                  inputmode="decimal"
+                  enterkeyhint="done"
+                  autocomplete="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                  maxlength="8"
+                />
+                <span class="suffix" data-i18n="hoursSuffix"></span>
+              </div>
+              <p class="field-hint" data-i18n="hoursHint"></p>
+              <p class="field-error" id="err-hours-week" data-for="hours-week"></p>
+            </div>
+          </div>
+
+          <div role="tabpanel" id="panel-monthly" aria-labelledby="tab-monthly" hidden>
+            <div class="field">
+              <label for="monthly-salary" data-i18n="monthlySalary"></label>
+              <div class="control" data-control="monthly-salary">
+                <input
+                  id="monthly-salary"
+                  name="monthly-salary"
+                  type="text"
+                  inputmode="decimal"
+                  enterkeyhint="done"
+                  autocomplete="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                  maxlength="18"
+                />
+                <span class="suffix currency-suffix" aria-hidden="true">$</span>
+              </div>
+              <p class="field-error" id="err-monthly-salary" data-for="monthly-salary"></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="tax-rate" data-i18n="taxRate"></label>
+            <div class="control" data-control="tax-rate">
+              <input
+                id="tax-rate"
+                name="tax-rate"
+                type="text"
+                inputmode="decimal"
+                enterkeyhint="done"
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+                maxlength="8"
+              />
+              <span class="suffix">%</span>
+            </div>
+            <p class="field-hint" data-i18n="taxHint"></p>
+            <p class="field-error" id="err-tax-rate" data-for="tax-rate"></p>
+          </div>
+        </form>
+      </section>
+      </div>
+
+      <div class="workspace-results">
+      <section class="hero" aria-live="polite" aria-atomic="true">
+        <div class="hero-kicker">
+          <span class="pill" data-i18n="estimate"></span>
+          <span data-i18n="net"></span>
+        </div>
+        <p class="hero-value num" id="net-hero">—</p>
+        <p class="hero-period" data-i18n="perMonth"></p>
+        <div class="hero-split">
+          <div>
+            <span data-i18n="weekly"></span>
+            <strong class="num" id="net-week">—</strong>
+          </div>
+          <div>
+            <span data-i18n="annual"></span>
+            <strong class="num" id="net-year">—</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats" data-i18n="summary" data-i18n-attr="aria-label">
+        <article class="stat">
+          <h2 data-i18n="gross"></h2>
+          <p class="num" id="gross-month">—</p>
+          <p class="stat-sub" data-i18n="perMonth"></p>
+        </article>
+        <article class="stat">
+          <h2 data-i18n="taxes"></h2>
+          <p class="num" id="tax-month">—</p>
+          <p class="stat-sub" data-i18n="perMonth"></p>
+        </article>
+      </section>
+
+      <section class="breakdown" aria-labelledby="breakdown-title">
+        <h2 id="breakdown-title" data-i18n="breakdown"></h2>
+        <ul class="break-list" id="breakdown-list"></ul>
+      </section>
+
+      <p class="note" data-i18n="formula"></p>
+      <p class="note" data-i18n="disclaimer"></p>
+      <p class="privacy">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="lock">
+          <rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="M8 10V8a4 4 0 0 1 8 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span data-i18n="privacy"></span>
+      </p>
+      <button type="button" class="reset" id="reset" data-i18n="reset"></button>
+      </div>
+      </div>
+    </div>
+
+    <noscript>
+      <p class="noscript">Payly needs JavaScript to calculate your salary. Nothing is sent to a server.</p>
+    </noscript>
+    <script src="./script.js"></script>
+  </body>
+</html>
